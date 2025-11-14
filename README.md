@@ -5,7 +5,6 @@ Un prototipo de sistema de punto de venta (POS) para autobuses diseñado para ac
 ## ✨ Características Principales
 
   * **Pagos Lightning:** Genera códigos QR de cobro exacto en Satoshis a partir de una tarifa en **USD**.
-  * **Diseño de Escritorio Profesional:** Interfaz minimalista de escritorio con estilo **BOLD** y paleta de colores **Bitcoin (Naranja)**.
   * **Notificación Instantánea (Luz Verde):** Utiliza un *polling* robusto que activa una notificación visual solo cuando un pago **pendiente pasa a ser liquidado**.
   * **Historial Fiable:** El *dashboard* muestra el historial de cargos con el estado preciso (`Pagado ✅`, `Pendiente...`, `Expirado ❌`) y la fecha/hora correcta, extrayendo los datos directamente de la API de Cargos de SatsPayServer.
 
