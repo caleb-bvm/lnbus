@@ -1,7 +1,6 @@
 import React from 'react';
 import FareManager from './components/FareManager.jsx';
 import PaymentDashboard from './components/PaymentDashboard.jsx';
-
 // CRÍTICO: El componente EnterpriseFooter ha sido eliminado de aquí.
 
 
