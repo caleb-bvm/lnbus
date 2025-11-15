@@ -1,101 +1,75 @@
-# 🚍 Lightning Bus POS (Point of Sale)
+# ⚡ LightningBus.io - Sistema de Pago de Pasajes con Bitcoin Lightning
 
-Un prototipo de sistema de punto de venta (POS) para autobuses diseñado para aceptar micropagos en **Bitcoin sobre Lightning Network** en El Salvador. El diseño es **BOLD, de alto contraste**, y enfocado en la fiabilidad y la experiencia de usuario (UX) del conductor.
+Este proyecto implementa un sistema de pago de pasajes para autobuses utilizando la red Bitcoin Lightning a través de la plataforma de gestión de monederos LNBits. El objetivo principal es ofrecer una solución de cobro eficiente con liquidación automática de fondos.
 
-## ✨ Características Principales
+---
 
-  * **Pagos Lightning:** Genera códigos QR de cobro exacto en Satoshis a partir de una tarifa en **USD**.
-  * **Notificación Instantánea (Luz Verde):** Utiliza un *polling* robusto que activa una notificación visual solo cuando un pago **pendiente pasa a ser liquidado**.
-  * **Historial Fiable:** El *dashboard* muestra el historial de cargos con el estado preciso (`Pagado ✅`, `Pendiente...`, `Expirado ❌`) y la fecha/hora correcta, extrayendo los datos directamente de la API de Cargos de SatsPayServer.
+## 🚀 Instalación y Configuración del Entorno
 
------
+Sigue estos pasos para configurar el backend (Node.js/Express) y conectarlo a tu instancia de LNBits.
 
-## ⚙️ Instalación y Configuración
+### 1. Requisitos Previos
 
-El proyecto consta de dos partes: **`backend`** (Node.js/Express) y **`frontend`** (React/Vite).
+Asegúrate de tener las siguientes extensiones activas en tu monedero principal de LNBits:
 
-### 1\. Configuración de LNbits (Requisito Previo)
+* **SatsPayServer:** Requerida para generar las facturas de cobro (códigos QR).
+* **Split Payments:** Requerida para configurar la liquidación automática de fondos entre monederos.
 
-Asegúrate de tener una instancia de LNbits (o un nodo Lightning con la extensión SatsPayServer activada) y obtener las siguientes claves:
+### 2. Archivo de Variables de Entorno (`.env`)
 
-  * **URL Base de LNbits:** Ej. `http://chirilicas.com:5000`
-  * **Wallet ID**
-  * **Admin Key**
-
-### 2\. Configuración del Backend (Express)
-
-Navega al directorio **`backend`** e instala las dependencias.
-
-```bash
-cd backend
-npm install
-```
-
-Luego, crea o actualiza tu archivo **`.env`** con las credenciales obtenidas:
+Crea un archivo `.env` en la raíz del proyecto y complétalo con tus claves y URLs de LNBits.
 
 ```env
-# -----------------------------------
-# CLAVES CRÍTICAS DE LNBITS
-# -----------------------------------
+# URL base de tu instancia de LNBITS
+LNBITS_BASE_URL=[http://chirilicas.com:5000]
 
-# URL de tu nodo LNbits (Ej. http://chirilicas.com:5000)
-LNBITS_BASE_URL="[TU_NODE_URL]"
+# Monedero principal del Bus (Fuente de los cargos)
+BUS_ADMIN_KEY="f55682d14a044ba88060411fadd61023"
+WALLET_ID="b1cfa446ed1448339eba3e3518173775"
 
-# ID de la Cartera (Necesaria para SatsPayServer)
-WALLET_ID="[TU_WALLET_ID]"
+# Monedero del Pasajero (Utilizado para simular pagos y recargas)
+PASSENGER_ADMIN_KEY="cfa31024ff8a49dea9c7dc849df53895"
+PASSENGER_INVOICE_KEY="db2b55de024c4b5abb2f7e32cd7622da"
 
-# Admin Key de la Cartera (Permite crear facturas)
-BUS_ADMIN_KEY="[TU_ADMIN_KEY]"
+# Configuración de los monederos dentro de Split Payments 
+# SPLIT_WALLET_A_ID="..." 
+# SPLIT_WALLET_B_ID="..." 
+````
 
-# URL de Fallback para el Webhook (Aunque no se usa, SatsPayServer la requiere)
-BUS_WEBHOOK_URL="http://tuserver.com/api/payment_notification" 
+### 3\. Ejecución del Backend
 
-# Puerto del Servidor
-PORT=3000
-```
+1.  Instala las dependencias: `npm install`
+2.  Inicia el servidor: `npm start`
 
-### 3\. Instalación del Frontend (React/Vite)
-
-Navega al directorio **`frontend`** e instala las librerías necesarias (incluyendo el generador de QR).
-
-```bash
-cd frontend
-npm install
-# Librerías específicas: axios para peticiones, qrcode.react para la generación del QR en línea.
-npm install axios express dotenv qrcode.react
-```
+El backend se iniciará en el puerto `3000`.
 
 -----
 
-## ▶️ Ejecución del Proyecto
+## 🚀 Funcionalidad del Sistema
 
-Abre dos terminales y corre ambos servidores simultáneamente.
+El sistema ofrece una solución de pago de pasajes totalmente automatizada, centralizada en la lógica del controlador (`controllers/busController.js`).
 
-### 1\. Iniciar el Backend (Terminal 1)
+### I. Flujo de Cobro (Wallet del Bus)
 
-Navega a la carpeta **`backend`** y ejecuta:
+| Endpoint | Método | Descripción | Tecnología Principal |
+| :--- | :--- | :--- | :--- |
+| `/api/bus/invoice` | `POST` | Genera una factura Lightning (QR) para el pasaje basándose en un monto en USD, utilizando el precio actual de Bitcoin (Coingecko API). | **SatsPayServer** |
+| `/api/bus/payments` | `GET` | Recupera el historial de pagos de pasajes completados, utilizado para poblar el dashboard del Bus. | **SatsPayServer** |
 
-```bash
-npm start
-```
+### II. Flujo del Pasajero (Wallet del Pasajero)
 
-### 2\. Iniciar el Frontend (Terminal 2)
+| Endpoint | Método | Descripción |
+| :--- | :--- | :--- |
+| `/api/passenger/balance` | `GET` | Consulta el saldo del monedero del pasajero. |
+| `/api/passenger/decode` | `POST` | Decodifica la factura BOLT11 del bus para verificar el monto a pagar. |
+| `/api/passenger/pay` | `POST` | Realiza el pago de la factura al Bus. |
+| `/api/passenger/topup` | `POST` | Simula una recarga de saldo en el monedero del pasajero. |
 
-Abre otra terminal, navega a la carpeta **`frontend`** y ejecuta:
+### III. División de Pagos (Split Payments)
 
-```bash
-npm run dev
-```
+El proyecto está diseñado para integrar la liquidación automática de fondos utilizando la extensión **Split Payments**.
 
-*La aplicación de React se abrirá automáticamente en tu navegador (usualmente `http://localhost:5173`).*
+  * La configuración de la división de pagos (ej. 60% para el Conductor, 40% para la Cooperativa) se realiza directamente en el dashboard de LNBits.
+  * Debido a dependencias de entorno, la creación de la factura se realiza a través de SatsPayServer, pero la funcionalidad de liquidación de fondos puede ser demostrada a través de la interfaz de la extensión Split Payments, utilizando la función de **transferencia programada** o **liquidación diaria** sobre los fondos recibidos por el monedero del Bus.
 
------
-
-## 📝 Demo y Uso
-
-1.  **Establecer Tarifa:** En el *dashboard* (lado izquierdo), ingresa la tarifa deseada en **USD** (ej., `0.45`).
-2.  **Generar QR:** Haz clic en **"GENERAR NUEVO QR"**. El QR se actualiza inmediatamente con la nueva tarifa en Satoshis.
-3.  **Proceso de Pago y Monitoreo:**
-      * El pasajero escanea el QR con su cartera Lightning.
-      * La transacción aparece en la tabla como **`Pendiente...`** (Estado Amarillo).
-      * Una vez que el pago se liquida en la red Lightning (cada 5 segundos), la **"Luz Verde"** se activa y la transacción en la tabla cambia a **`Pagado ✅`**.
+# ⚡ Grupo 24 BLOCK ZERO
