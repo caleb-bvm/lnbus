@@ -69,7 +69,6 @@ El sistema ofrece una solución de pago de pasajes totalmente automatizada, cent
 
 El proyecto está diseñado para integrar la liquidación automática de fondos utilizando la extensión **Split Payments**.
 
-  * La configuración de la división de pagos (ej. 60% para el Conductor, 40% para la Cooperativa) se realiza directamente en el dashboard de LNBits.
-  * Debido a dependencias de entorno, la creación de la factura se realiza a través de SatsPayServer, pero la funcionalidad de liquidación de fondos puede ser demostrada a través de la interfaz de la extensión Split Payments, utilizando la función de **transferencia programada** o **liquidación diaria** sobre los fondos recibidos por el monedero del Bus.
+  * La configuración de la división de pagos (ej. 70% para la empresa, 30% para el conductor) se realiza directamente en el dashboard de LNBits.
 
 # ⚡ Grupo 24 BLOCK ZERO
