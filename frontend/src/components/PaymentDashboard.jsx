@@ -6,7 +6,6 @@ const API_BASE_URL = 'http://localhost:3000/api';
 const PaymentDashboard = () => {
     const [payments, setPayments] = useState([]);
     const [isPaymentReceived, setIsPaymentReceived] = useState(false); 
-    // Usamos useRef para rastrear el NÚMERO DE PAGOS LIQUIDADOS.
     const paidCountRef = useRef(0); 
 
     const fetchPayments = async () => {
@@ -14,23 +13,16 @@ const PaymentDashboard = () => {
             const response = await axios.get(`${API_BASE_URL}/payments`);
             let currentPayments = response.data.payments;
             
-            // --- CRÍTICO: Ordenar por tiempo (el más reciente primero) ---
-            // Forzamos el orden en el frontend: Mayor timestamp (más reciente) primero.
             currentPayments.sort((a, b) => b.time - a.time); 
-            // -----------------------------------------------------------
             
-            // --- Lógica de la LUZ VERDE (Polling ROBUSTO) ---
-            // Solo contamos los pagos liquidados ('paid')
             const paidPayments = currentPayments.filter(p => p.status === 'paid');
             const newPaidCount = paidPayments.length;
 
             if (newPaidCount > paidCountRef.current) {
-                // Notificación solo si un pago pasa a ser liquidado
                 setIsPaymentReceived(true); 
                 setTimeout(() => setIsPaymentReceived(false), 3000); 
             }
             paidCountRef.current = newPaidCount;
-            // ---------------------------------------------
             
             setPayments(currentPayments);
 
@@ -39,15 +31,12 @@ const PaymentDashboard = () => {
         }
     };
 
-    // Único useEffect para Polling
     useEffect(() => {
-        // Carga inicial y Polling recurrente cada 5 segundos
         setTimeout(fetchPayments, 0); 
         const intervalId = setInterval(fetchPayments, 5000); 
         return () => clearInterval(intervalId);
     }, []); 
 
-    // Función para determinar el texto del estado (USA LA CADENA p.status de SatsPayServer)
     const getStatusText = (payment) => {
         if (payment.status === 'paid') return 'Pagado ✅';
         if (payment.status === 'pending') return 'Pendiente...';
@@ -55,24 +44,23 @@ const PaymentDashboard = () => {
         return '---';
     };
 
-    // Función para determinar el estilo del estado (Paleta de Branding)
     const getStatusStyle = (payment) => {
         let color = '#333';
         let bgColor = '#f0f0f0';
 
         if (payment.status === 'paid') {
-            color = '#155724'; // Verde Oscuro
-            bgColor = '#D4EDDA'; // Verde Claro
+            color = '#155724';
+            bgColor = '#D4EDDA';
         } else if (payment.status === 'pending') {
-            color = '#856404'; // Amarillo/Oro Oscuro
-            bgColor = '#FFF3CD'; // Amarillo Claro
+            color = '#856404';
+            bgColor = '#FFF3CD';
         } else if (payment.status === 'expired') {
-            color = '#721C24'; // Rojo Oscuro
-            bgColor = '#F8D7DA'; // Rojo Claro
+            color = '#721C24';
+            bgColor = '#F8D7DA';
         }
         
         return {
-            fontWeight: '800', // BOLD
+            fontWeight: '800',
             color: color, 
             backgroundColor: bgColor,
             padding: '6px 12px',
@@ -86,7 +74,6 @@ const PaymentDashboard = () => {
         <div style={dashboardStyles.container}>
             <h2 style={dashboardStyles.title}>📋 Historial de Cargos Recientes</h2>
             
-            {/* LUZ VERDE DE NOTIFICACIÓN */}
             <div style={{
                 ...dashboardStyles.light,
                 backgroundColor: isPaymentReceived ? '#FFC107' : '#EAEAEA', 
@@ -94,10 +81,9 @@ const PaymentDashboard = () => {
                 boxShadow: isPaymentReceived ? '0 0 15px rgba(255, 193, 7, 0.7)' : 'none',
                 border: '3px solid #FF9900' 
             }}>
-                {isPaymentReceived ? '✅ ¡PAGO DE PASAJE LIQUIDADO!' : 'Monitoreando Pagos...'}
+                {isPaymentReceived ? '✅ ¡PASAJE PAGADO!' : 'Monitoreando Pagos...'}
             </div>
             
-            {/* TABLA DE PAGOS */}
             <div style={dashboardStyles.tableWrapper}>
                 <table style={dashboardStyles.table}>
                     <thead>
@@ -112,7 +98,6 @@ const PaymentDashboard = () => {
                         {payments.map((p, index) => (
                             <tr key={p.checking_id || index} style={dashboardStyles.tableRow}>
                                 <td style={dashboardStyles.td}>
-                                    {/* CORRECCIÓN FINAL DE FECHA: Muestra la fecha/hora si el timestamp es válido */}
                                     {p.time && !isNaN(+p.time) && +p.time > 0
                                         ? new Date(parseInt(p.time) * 1000).toLocaleString()
                                         : '---'
@@ -138,7 +123,6 @@ const PaymentDashboard = () => {
     );
 };
 
-// Estilos Minimalistas BOLD
 const dashboardStyles = {
     container: { 
         padding: '24px', 

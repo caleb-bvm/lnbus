@@ -1,13 +1,22 @@
 import express from "express";
-import { createInvoice, getPayments, payInvoice, getPassengerBalance } from "./../controllers/busController.js";
+import { 
+    createInvoice, 
+    getPayments, 
+    payInvoice, 
+    getPassengerBalance, 
+    simulateTopUp, 
+    decodeInvoice 
+} from "./../controllers/busController.js";
+
 const router = express.Router();
 
-// Rutas de la APP DEL CONDUCTOR (POS)
-router.post("/lnurlpay", createInvoice); // Crear Cargo (Invoice)
-router.get("/payments", getPayments);    // Obtener Historial de Cargos (Polling)
+router.get("/passenger/balance", getPassengerBalance);
+router.post("/passenger/pay", payInvoice);
+router.post("/passenger/topup", simulateTopUp);
 
-// Rutas de la BUS WALLET (PASAJERO)
-router.get("/passenger/balance", getPassengerBalance); // Obtener saldo real
-router.post("/passenger/pay", payInvoice);           // Pagar factura del conductor
+router.post("/passenger/decode-invoice", decodeInvoice); 
+
+router.post("/lnurlpay", createInvoice); 
+router.get("/payments", getPayments);
 
 export default router;

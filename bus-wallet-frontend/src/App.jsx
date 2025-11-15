@@ -1,5 +1,5 @@
 import React from 'react';
-import PayScreen from './components/PayScreen.jsx'; // Asegúrate de mover PayScreen.jsx aquí
+import PayScreen from './components/PayScreen.jsx'; 
 
 function App() {
   return (
@@ -20,7 +20,7 @@ const appStyles = {
         fontFamily: 'Roboto, Arial, sans-serif',
         fontWeight: 'bold',
         display: 'flex',
-        justifyContent: 'center', // Centrar el contenido de la billetera
+        justifyContent: 'center', 
         alignItems: 'center',
     },
 };
